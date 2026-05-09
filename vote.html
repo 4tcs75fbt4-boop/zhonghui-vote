@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>中汇人寿文创用品方案投票</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+    background: #f2f3f7; color: #222;
+    min-height: 100vh; padding-bottom: 90px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #c0001a 0%, #8b0012 100%);
+    padding: 20px 16px 16px; text-align: center;
+  }
+  .header-logo { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 2px; margin-bottom: 4px; }
+  .header-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .header-sub { font-size: 13px; color: rgba(255,255,255,0.82); }
+  .header-badge {
+    display: inline-block; background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3); color: #fff;
+    font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-top: 6px;
+  }
+
+  /* ── Guide ── */
+  .guide {
+    background: #fff8e6; border-left: 4px solid #f0a500;
+    margin: 10px 12px 0; padding: 9px 12px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12.5px; color: #7a5800; line-height: 1.6;
+  }
+
+  /* ── Tabs ── */
+  .tabs-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .tabs {
+    display: flex; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 0 0 auto; padding: 12px 14px;
+    font-size: 12.5px; color: #888; border: none; background: transparent;
+    cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { color: #c0001a; border-bottom-color: #c0001a; font-weight: 700; }
+
+  /* ── Sections ── */
+  .category-section { display: none; padding: 10px 12px 20px; }
+  .category-section.active { display: block; }
+
+  /* ── Category header ── */
+  .cat-header {
+    background: #fff; border-radius: 12px; padding: 11px 14px;
+    margin-bottom: 10px; display: flex; align-items: center;
+    gap: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+  }
+  .cat-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #c0001a, #e84040);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .cat-name { font-size: 16px; font-weight: 700; color: #111; }
+  .cat-sub { font-size: 11.5px; color: #aaa; margin-top: 1px; }
+
+  /* ── Grid ── */
+  .proposals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  /* ── Card ── */
+  .prop-card {
+    background: #fff; border-radius: 12px;
+    overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    border: 2.5px solid transparent;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    cursor: pointer; display: flex; flex-direction: column;
+  }
+  .prop-card:active { transform: scale(0.97); }
+  .prop-card.selected {
+    border-color: #c0001a;
+    box-shadow: 0 2px 14px rgba(192,0,26,0.18);
+  }
+
+  /* Image */
+  .prop-img-wrap {
+    position: relative; width: 100%;
+    padding-top: 100%;
+    background: #f8f9fa; overflow: hidden;
+  }
+  .prop-img-wrap img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: contain;
+  }
+
+  /* Number badge */
+  .prop-num {
+    position: absolute; top: 6px; left: 6px;
+    font-size: 10px; font-weight: 800;
+    padding: 2px 6px; border-radius: 8px;
+    background: rgba(192,0,26,0.88); color: #fff; letter-spacing: 0.5px;
+  }
+
+  /* Check badge */
+  .prop-check {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,0.95); border: 2px solid #ddd;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #fff; transition: all 0.2s;
+  }
+  .prop-card.selected .prop-check { background: #c0001a; border-color: #c0001a; }
+
+  /* Product name */
+  .prop-name {
+    padding: 7px 8px 2px;
+    font-size: 11.5px; font-weight: 700; color: #111; line-height: 1.3;
+    min-height: 28px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* Specs */
+  .prop-specs {
+    padding: 1px 8px 7px;
+    font-size: 10px; color: #aaa; line-height: 1.4; min-height: 20px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* Footer */
+  .prop-footer {
+    padding: 7px 8px; border-top: 1px solid #f2f2f2; text-align: center;
+  }
+  .prop-footer span { font-size: 11px; font-weight: 600; color: #ccc; transition: color 0.2s; }
+  .prop-card.selected .prop-footer span { color: #c0001a; }
+
+  .prop-selected-label {
+    display: none; font-size: 10px; font-weight: 700; color: #c0001a;
+    background: #fff0f0; padding: 3px 6px; border-radius: 20px;
+    text-align: center; margin: 6px 8px;
+  }
+  .prop-card.selected .prop-selected-label { display: block; }
+  .prop-card.selected .prop-footer { display: none; }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid #ececec;
+    padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.07); z-index: 200;
+  }
+  .progress-info { font-size: 13px; color: #666; }
+  .progress-count { font-size: 17px; font-weight: 700; color: #c0001a; margin: 0 3px; }
+  .submit-btn {
+    background: linear-gradient(135deg, #c0001a, #8b0012); color: #fff; border: none;
+    border-radius: 22px; padding: 10px 22px;
+    font-size: 13.5px; font-weight: 700; cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .submit-btn:not(:disabled):active { transform: scale(0.97); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 500;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px 20px 0 0;
+    padding: 22px 18px 36px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title { text-align: center; font-size: 17px; font-weight: 700; margin-bottom: 16px; color: #111; }
+  .emoji-row { font-size: 38px; display: block; text-align: center; margin-bottom: 8px; }
+  .result-item {
+    display: flex; align-items: center; padding: 9px 12px;
+    background: #fafafa; border-radius: 10px; margin-bottom: 7px; gap: 10px;
+  }
+  .result-cat { flex: 1; font-size: 13px; font-weight: 600; color: #333; }
+  .result-choice { font-size: 12px; color: #c0001a; font-weight: 600; text-align: right; max-width: 55%; }
+  .result-check { font-size: 15px; color: #c0001a; flex-shrink: 0; }
+  .modal-close-btn {
+    width: 100%; margin-top: 14px; padding: 13px;
+    background: linear-gradient(135deg, #c0001a, #8b0012); color: #fff; border: none;
+    border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: rgba(0,0,0,0.72); color: #fff; padding: 10px 22px;
+    border-radius: 24px; font-size: 13px; z-index: 999;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+  /* Branch selector */
+  .branch-selector {
+    margin: 10px 12px 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+  }
+  .branch-selector-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .branch-selector-title .required {
+    color: #c0001a;
+  }
+  .branch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .branch-item {
+    padding: 10px 12px;
+    background: #f5f5f7;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .branch-item:hover {
+    background: #fff0f0;
+  }
+  .branch-item.selected {
+    border-color: #c0001a;
+    background: #fff0f0;
+    color: #c0001a;
+    font-weight: 700;
+  }
+  .branch-item.placeholder {
+    color: #999;
+    font-style: italic;
+  }
+
+  /* Admin access button */
+  .admin-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #888;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 150;
+  }
+  .admin-btn:hover {
+    background: #f5f5f7;
+  }
+
+  /* Stats modal */
+  .stats-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 600;
+    align-items: flex-end; justify-content: center;
+  }
+  .stats-modal-overlay.show { display: flex; }
+  .stats-modal-box {
+    background: #fff; border-radius: 20px 20px 0 0;
+    padding: 22px 18px 36px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  .stats-title {
+    text-align: center; font-size: 17px; font-weight: 700; margin-bottom: 6px; color: #111;
+  }
+  .stats-subtitle {
+    text-align: center; font-size: 12px; color: #888; margin-bottom: 16px;
+  }
+  .stats-password-wrap {
+    margin-bottom: 16px;
+  }
+  .stats-password-input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid #ddd; border-radius: 10px;
+    font-size: 14px; outline: none; text-align: center;
+  }
+  .stats-password-input:focus {
+    border-color: #c0001a;
+  }
+  .stats-login-btn {
+    width: 100%; padding: 12px; margin-top: 10px;
+    background: linear-gradient(135deg, #c0001a, #8b0012); color: #fff;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
+  .stats-category {
+    margin-bottom: 18px;
+  }
+  .stats-cat-title {
+    font-size: 14px; font-weight: 700; color: #333;
+    padding: 8px 0; border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 10px;
+  }
+  .stats-item {
+    display: flex; align-items: center; padding: 8px 10px;
+    background: #fafafa; border-radius: 8px; margin-bottom: 6px; gap: 10px;
+  }
+  .stats-item-rank {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #f0f0f0; color: #888; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .stats-item-rank.top1 { background: #FFD700; color: #fff; }
+  .stats-item-rank.top2 { background: #C0C0C0; color: #fff; }
+  .stats-item-rank.top3 { background: #CD7F32; color: #fff; }
+  .stats-item-name { flex: 1; font-size: 12px; color: #333; }
+  .stats-item-votes {
+    font-size: 14px; font-weight: 700; color: #c0001a;
+    min-width: 50px; text-align: right;
+  }
+  .stats-item-bar {
+    width: 60px; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden;
+  }
+  .stats-item-bar-fill {
+    height: 100%; background: #c0001a; border-radius: 3px; transition: width 0.3s;
+  }
+  .stats-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px; background: linear-gradient(135deg, #c0001a, #8b0012);
+    border-radius: 10px; color: #fff; margin-top: 10px;
+  }
+  .stats-total-label { font-size: 13px; }
+  .stats-total-value { font-size: 20px; font-weight: 700; }
+  .stats-close-btn {
+    width: 100%; margin-top: 14px; padding: 13px;
+    background: #f5f5f7; color: #333; border: none;
+    border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">ZHONGHUI LIFE · 中汇人寿</div>
+  <div class="header-title">文创用品方案投票</div>
+</div>
+
+<div class="guide">📌 每个品类可多选，完成后点击底部「提交投票」</div>
+
+<div class="branch-selector" id="branchSelector">
+  <div class="branch-selector-title">
+    🏢 请选择您的分公司 <span class="required">*</span>
+  </div>
+  <div class="branch-grid" id="branchGrid"></div>
+</div>
+
+<button class="admin-btn" id="adminBtn" onclick="openStatsModal()">📊 查看结果</button>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabsContainer"></div>
+</div>
+
+<div id="sectionsContainer"></div>
+
+<div class="bottom-bar">
+  <div class="progress-info">已选 <span class="progress-count" id="progressCount">0</span> 个方案</div>
+  <button class="submit-btn" id="submitBtn" disabled onclick="showResult()">提交投票</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <span class="emoji-row">🎉</span>
+    <div class="modal-title">您的投票已完成！</div>
+    <div id="resultList"></div>
+    <button class="modal-close-btn" onclick="closeModalDirect()">关闭</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Stats Modal -->
+<div class="stats-modal-overlay" id="statsModalOverlay" onclick="closeStatsModal(event)">
+  <div class="stats-modal-box">
+    <div class="stats-title" id="statsTitle">📊 投票统计</div>
+    <div class="stats-subtitle" id="statsSubtitle"></div>
+    <div id="statsContent"></div>
+    <button class="stats-close-btn" onclick="closeStatsModalDirect()">关闭</button>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────
+//  分公司列表
+// ────────────────────────────────────────────────────────
+const branches = [
+  '北京营业总部（北京分公司）',
+  '上海分公司',
+  '河南分公司',
+  '山东分公司',
+  '河北分公司',
+  '青岛分公司',
+  '吉林分公司',
+  '四川分公司',
+  '江苏分公司',
+  '广东分公司',
+  '其他分公司'
+];
+
+// 管理员密码（可在发布后修改）
+const ADMIN_PASSWORD = 'zh2025';
+
+// 当前选中的分公司
+let selectedBranch = null;
+
+// ────────────────────────────────────────────────────────
+//  DATA: 6 categories
+//  方案A=昂客汇宝, 方案B=金保联, 方案C=正柒文化
+// ────────────────────────────────────────────────────────
+const categories = [
+  // ── 手提袋 ──
+  {
+    id: 'bag', name: '手提袋', icon: '👜',
+    proposals: [
+      { productName: '汇宝文创手提袋',    shortSpec: '杜邦纸·4款姿态·35×30cm',      img: 'imgs/ankehui/image7.jpeg'    },
+      { productName: '定制帆布袋',         shortSpec: '品牌帆布·汇宝IP定制',           img: 'imgs/jinbaolian/image20.jpeg' },
+      { productName: '杜邦纸托特包',      shortSpec: '四险种主题·一包一主题',        img: 'imgs/zhengqi/page_13.jpg'   },
+    ]
+  },
+
+  // ── 毛绒包挂 ──
+  {
+    id: 'keychain', name: '毛绒包挂', icon: '🧸',
+    proposals: [
+      // 原有6个
+      { productName: '汇宝毛绒包挂',      shortSpec: '水晶超柔·刺绣工艺',            img: 'imgs/ankehui/image15.jpeg'  },
+      { productName: '汇宝挂件',          shortSpec: '汇宝IP·精致挂扣',               img: 'imgs/jinbaolian/image21.jpeg' },
+      { productName: '四大主题毛绒挂件',  shortSpec: '汇浪游/元气/宝盆/躺赢',         img: 'imgs/zhengqi/page_19.jpg'   },
+      { productName: '汇宝U形枕',         shortSpec: '颈枕+抱枕两用·超萌IP',           img: 'imgs/zhengqi/page_41.jpg'   },
+      // 从实用周边移入：2号=汇宝挂件(B), 7号=汇宝抱枕(B), 19号=文创抱枕被(A)
+      { productName: '汇宝挂件',           shortSpec: '汇宝主题·随手礼',               img: 'imgs/jinbaolian/image25.jpeg' },
+      { productName: '汇宝抱枕',           shortSpec: '品质实用·品牌传递',             img: 'imgs/jinbaolian/image27.png' },
+      { productName: '文创抱枕被',         shortSpec: '水晶超柔·热转印',               img: 'imgs/ankehui/image56.jpeg'  },
+    ]
+  },
+
+  // ── 手办 ──
+  {
+    id: 'figure', name: '手办', icon: '🏺',
+    proposals: [
+      { productName: '汇宝手办',          shortSpec: '硅胶·烫印·精品礼盒',            img: 'imgs/ankehui/image18.jpeg'  },
+      { productName: '汇宝手办',          shortSpec: '多姿态·高端礼盒',                img: 'imgs/jinbaolian/image22.jpeg' },
+      { productName: '四款主题手办系列',  shortSpec: '场景化·收藏价值高',              img: 'imgs/zhengqi/page_21.jpg'   },
+      // 从实用周边移入：11号=汇宝手机支架(A)
+      { productName: '汇宝手机支架',      shortSpec: '硅胶烫印·精品礼盒',              img: 'imgs/ankehui/image48.jpeg'  },
+    ]
+  },
+
+  // ── 文化衫 ──
+  {
+    id: 'tshirt', name: '文化衫', icon: '👕',
+    proposals: [
+      { productName: '圆领文化衫',         shortSpec: '红/蓝两色·100%纯棉',            img: 'imgs/ankehui/image21.jpeg'  },
+      { productName: '定制文化衫',         shortSpec: '汇宝IP·品牌统一',                img: 'imgs/jinbaolian/image24.jpeg' },
+      { productName: '半袖T恤+长袖卫衣',  shortSpec: '四主题系列·8款方案',            img: 'imgs/zhengqi/page_27.jpg'   },
+    ]
+  },
+
+  // ── 实用周边 ──
+  {
+    id: 'surrounding', name: '实用周边', icon: '🎁',
+    proposals: [
+      // 1号
+      { productName: '气囊手机支架',       shortSpec: '亚克力UV印刷·轻巧便携',           img: 'imgs/ankehui/image27.jpeg'  },
+      // 3号
+      { productName: '金属冰箱贴开瓶器',   shortSpec: '二合一·高曝光场景',               img: 'imgs/zhengqi/page_35.jpg'   },
+      // 4号
+      { productName: '文创鼠标垫',         shortSpec: '佳绩布防滑·热转印',               img: 'imgs/ankehui/image32.jpeg'  },
+      // 5号
+      { productName: '手机支架',           shortSpec: '汇宝主题·创意设计',                img: 'imgs/jinbaolian/image26.jpeg' },
+      // 6号
+      { productName: '汇宝板夹',           shortSpec: '可折叠·发泡PP',                   img: 'imgs/ankehui/image39.jpeg'  },
+      // 8号
+      { productName: '文创书立',           shortSpec: '可折叠·E瓦楞UV',                  img: 'imgs/ankehui/image43.jpeg'  },
+      // 从汇宝杯伞移回：1号=汇宝行李牌, 2号=特种纸笔记本+笔套装, 4号=汇宝文创签字笔
+      { productName: '汇宝行李牌',         shortSpec: '立体滴胶·PU提手',                  img: 'imgs/ankehui/image45.jpeg'  },
+      { productName: '特种纸笔记本+笔套装', shortSpec: '商务礼品·高净值适用',              img: 'imgs/zhengqi/page_37.jpg'   },
+      { productName: '汇宝文创签字笔',     shortSpec: '铝制·激光雕刻·礼盒',               img: 'imgs/ankehui/image50.jpeg'  },
+    ]
+  },
+
+  // ── 礼盒套装 ──
+  {
+    id: 'giftbox', name: '礼盒套装', icon: '🎀',
+    proposals: [
+      // 从实用周边移入：15号=汇宝礼盒套装(B), 17号=汇宝礼品套装(B)
+      { productName: '汇宝礼盒套装',       shortSpec: '高端礼盒·品质优先',               img: 'imgs/jinbaolian/image29.jpeg' },
+      { productName: '汇宝礼品套装',       shortSpec: '高端精品·VIP馈赠',                 img: 'imgs/jinbaolian/image30.jpeg' },
+    ]
+  },
+
+  // ── 汇宝杯伞 ──
+  {
+    id: 'cupumbrella', name: '汇宝杯伞', icon: '☂️',
+    proposals: [
+      // 从实用周边移入：7号=汇宝雨伞, 8号=全遮光雨伞, 9号=定制保温杯, 10号=汇宝咖啡杯
+      { productName: '汇宝雨伞',           shortSpec: '精品定位·VIP客户',                  img: 'imgs/jinbaolian/image28.jpeg' },
+      { productName: '全遮光雨伞',          shortSpec: '直径95cm·精品礼盒',               img: 'imgs/ankehui/umbrella_gold.jpg'  },
+      { productName: '定制保温杯',          shortSpec: '软硅胶提手·四主题',                img: 'imgs/zhengqi/page_43.jpg'   },
+      { productName: '汇宝咖啡杯',         shortSpec: '不锈钢杯身·烫金工艺',               img: 'imgs/ankehui/image58.jpeg'  },
+    ]
+  }
+];
+
+// ────────────────────────────────────────────────────────
+//  State: { catId: Set of selected proposal indices }
+// ────────────────────────────────────────────────────────
+const votes = {};
+
+// 渲染分公司选择
+function renderBranches() {
+  const grid = document.getElementById('branchGrid');
+  grid.innerHTML = branches.map((b, i) => `
+    <div class="branch-item${selectedBranch === b ? ' selected' : ''}" onclick="selectBranch('${b}')">${b}</div>
+  `).join('');
+}
+
+// 选择分公司
+function selectBranch(branch) {
+  selectedBranch = branch;
+  renderBranches();
+  updateProgress();
+}
+
+// 渲染分公司选择区域
+renderBranches();
+
+function renderAll() {
+  const tabsContainer = document.getElementById('tabsContainer');
+  const sectionsContainer = document.getElementById('sectionsContainer');
+  tabsContainer.innerHTML = '';
+  sectionsContainer.innerHTML = '';
+
+  categories.forEach((cat, ci) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab-btn' + (ci === 0 ? ' active' : '');
+    tab.textContent = cat.icon + ' ' + cat.name;
+    tab.onclick = () => switchTab(ci);
+    tabsContainer.appendChild(tab);
+
+    const section = document.createElement('div');
+    section.className = 'category-section' + (ci === 0 ? ' active' : '');
+    section.id = 'section-' + ci;
+
+    const catHeader = document.createElement('div');
+    catHeader.className = 'cat-header';
+    catHeader.innerHTML = `
+      <div class="cat-icon">${cat.icon}</div>
+      <div>
+        <div class="cat-name">${cat.name}</div>
+        <div class="cat-sub">共 ${cat.proposals.length} 个方案 · 可多选 · 点击卡片选择</div>
+      </div>`;
+    section.appendChild(catHeader);
+
+    const grid = document.createElement('div');
+    grid.className = 'proposals-grid';
+
+    cat.proposals.forEach((p, pi) => {
+      const selectedSet = votes[cat.id] || new Set();
+      const isSelected = selectedSet.has(pi);
+      const card = document.createElement('div');
+      card.className = 'prop-card' + (isSelected ? ' selected' : '');
+      card.onclick = () => castVote(ci, pi);
+
+      card.innerHTML = `
+        <div class="prop-img-wrap">
+          <img src="${p.img}" alt="${p.productName}" loading="lazy">
+          <div class="prop-num">${pi + 1}</div>
+          <div class="prop-check">${isSelected ? '✓' : ''}</div>
+        </div>
+        <div class="prop-name">${p.productName}</div>
+        <div class="prop-specs">${p.shortSpec}</div>
+        <div class="prop-footer"><span>👍 选择</span></div>
+        <div class="prop-selected-label">✓ 已选</div>`;
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    sectionsContainer.appendChild(section);
+  });
+
+  updateProgress();
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((t, i) =>
+    t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.category-section').forEach((s, i) =>
+    s.classList.toggle('active', i === idx));
+  const activeTab = tabsContainer.querySelectorAll('.tab-btn')[idx];
+  if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+function castVote(catIdx, propIdx) {
+  const cat = categories[catIdx];
+  if (!votes[cat.id]) votes[cat.id] = new Set();
+  const selectedSet = votes[cat.id];
+
+  if (selectedSet.has(propIdx)) {
+    selectedSet.delete(propIdx);
+    if (selectedSet.size === 0) delete votes[cat.id];
+  } else {
+    selectedSet.add(propIdx);
+    showToast('✓ 已选择');
+  }
+
+  const section = document.getElementById('section-' + catIdx);
+  section.querySelectorAll('.prop-card').forEach((card, i) => {
+    const isSelected = (votes[cat.id] && votes[cat.id].has(i));
+    card.classList.toggle('selected', isSelected);
+    card.querySelector('.prop-check').textContent = isSelected ? '✓' : '';
+  });
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.values(votes).reduce((s, st) => s + st.size, 0);
+  document.getElementById('progressCount').textContent = count;
+  document.getElementById('submitBtn').disabled = count === 0 || !selectedBranch;
+}
+
+function showResult() {
+  // 检查是否选择了分公司
+  if (!selectedBranch) {
+    showToast('请先选择您的分公司');
+    document.getElementById('branchSelector').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  // 保存投票数据到localStorage
+  saveVote();
+
+  const list = document.getElementById('resultList');
+  list.innerHTML = `
+    <div class="result-item" style="background:#fff0f0;border:1px solid #c0001a;">
+      <span class="result-check">🏢</span>
+      <div class="result-cat" style="font-weight:700;color:#c0001a;">投票分公司</div>
+      <div class="result-choice">${selectedBranch}</div>
+    </div>
+  ` + categories.map(cat => {
+    const selected = votes[cat.id];
+    if (!selected || selected.size === 0) {
+      return `<div class="result-item">
+        <span class="result-check" style="opacity:0.3">—</span>
+        <div class="result-cat">${cat.icon} ${cat.name}</div>
+        <div class="result-choice" style="color:#999">未投票</div>
+      </div>`;
+    }
+    const choices = Array.from(selected).map(i => {
+      const p = cat.proposals[i];
+      return `${i + 1}号 · ${p.productName}`;
+    }).join(' · ');
+    return `<div class="result-item">
+      <span class="result-check">✓</span>
+      <div class="result-cat">${cat.icon} ${cat.name}</div>
+      <div class="result-choice">${choices}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+// 保存投票到localStorage
+function saveVote() {
+  const voteData = {
+    timestamp: new Date().toISOString(),
+    branch: selectedBranch,
+    votes: {}
+  };
+
+  categories.forEach(cat => {
+    if (votes[cat.id] && votes[cat.id].size > 0) {
+      voteData.votes[cat.id] = Array.from(votes[cat.id]);
+    }
+  });
+
+  // 获取现有投票记录
+  let allVotes = JSON.parse(localStorage.getItem('zhVoteData') || '[]');
+
+  // 添加新投票
+  allVotes.push(voteData);
+
+  // 保存
+  localStorage.setItem('zhVoteData', JSON.stringify(allVotes));
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+// ────────────────────────────────────────────────────────
+//  统计功能
+// ────────────────────────────────────────────────────────
+function openStatsModal() {
+  const content = document.getElementById('statsContent');
+  document.getElementById('statsTitle').textContent = '📊 投票统计';
+  document.getElementById('statsSubtitle').textContent = '请输入管理员密码';
+
+  content.innerHTML = `
+    <div class="stats-password-wrap">
+      <input type="password" class="stats-password-input" id="adminPassword"
+             placeholder="请输入管理员密码" onkeypress="if(event.key==='Enter')checkAdminPassword()">
+      <button class="stats-login-btn" onclick="checkAdminPassword()">确认</button>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#999;margin-top:10px;">
+      💡 提示：如需查看投票结果，请联系管理员获取密码
+    </div>
+  `;
+
+  document.getElementById('statsModalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('adminPassword')?.focus(), 100);
+}
+
+function checkAdminPassword() {
+  const pwd = document.getElementById('adminPassword').value;
+  if (pwd === ADMIN_PASSWORD) {
+    showStatsData();
+  } else {
+    showToast('密码错误，请重试');
+    document.getElementById('adminPassword').value = '';
+  }
+}
+
+function showStatsData() {
+  const content = document.getElementById('statsContent');
+  const allVotes = JSON.parse(localStorage.getItem('zhVoteData') || '[]');
+
+  if (allVotes.length === 0) {
+    document.getElementById('statsTitle').textContent = '📊 投票统计';
+    content.innerHTML = `
+      <div style="text-align:center;padding:40px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">📭</div>
+        <div style="font-size:15px;color:#666;">暂无投票数据</div>
+        <div style="font-size:12px;color:#999;margin-top:8px;">等待同事们提交投票...</div>
+      </div>
+    `;
+    return;
+  }
+
+  // 计算每个方案的投票数
+  const proposalVotes = {};
+  const branchVotes = {};
+
+  allVotes.forEach(vote => {
+    // 统计分公司
+    if (!branchVotes[vote.branch]) branchVotes[vote.branch] = 0;
+    branchVotes[vote.branch]++;
+
+    // 统计各方案
+    Object.entries(vote.votes).forEach(([catId, indices]) => {
+      if (!proposalVotes[catId]) proposalVotes[catId] = {};
+      indices.forEach(idx => {
+        if (!proposalVotes[catId][idx]) proposalVotes[catId][idx] = 0;
+        proposalVotes[catId][idx]++;
+      });
+    });
+  });
+
+  // 渲染统计结果
+  let html = `
+    <div class="stats-total-row">
+      <span class="stats-total-label">📝 总投票人数</span>
+      <span class="stats-total-value">${allVotes.length}</span>
+    </div>
+  `;
+
+  // 投票人数按分公司统计
+  const sortedBranches = Object.entries(branchVotes).sort((a, b) => b[1] - a[1]);
+  html += `
+    <div style="margin-top:16px;">
+      <div class="stats-cat-title">🏢 各分公司投票人数</div>
+  `;
+  sortedBranches.forEach(([branch, count], i) => {
+    const maxCount = sortedBranches[0][1];
+    const barWidth = maxCount > 0 ? (count / maxCount * 100) : 0;
+    html += `
+      <div class="stats-item">
+        <div class="stats-item-rank${i < 3 ? ' top' + (i+1) : ''}">${i + 1}</div>
+        <div class="stats-item-name">${branch}</div>
+        <div class="stats-item-bar"><div class="stats-item-bar-fill" style="width:${barWidth}%"></div></div>
+        <div class="stats-item-votes">${count}</div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  // 各品类统计
+  categories.forEach(cat => {
+    const catVotes = proposalVotes[cat.id] || {};
+    const proposals = cat.proposals.map((p, i) => ({
+      index: i,
+      name: p.productName,
+      votes: catVotes[i] || 0
+    })).sort((a, b) => b.votes - a.votes);
+
+    const maxVotes = proposals[0]?.votes || 0;
+
+    html += `
+      <div class="stats-category">
+        <div class="stats-cat-title">${cat.icon} ${cat.name}</div>
+    `;
+
+    proposals.forEach((p, i) => {
+      const barWidth = maxVotes > 0 ? (p.votes / maxVotes * 100) : 0;
+      html += `
+        <div class="stats-item">
+          <div class="stats-item-rank${i < 3 ? ' top' + (i+1) : ''}">${i + 1}</div>
+          <div class="stats-item-name">${p.index + 1}号 · ${p.name}</div>
+          <div class="stats-item-bar"><div class="stats-item-bar-fill" style="width:${barWidth}%"></div></div>
+          <div class="stats-item-votes">${p.votes}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  });
+
+  // 最新投票时间
+  const latestVote = allVotes[allVotes.length - 1];
+  html += `
+    <div style="text-align:center;font-size:11px;color:#999;margin-top:16px;padding-top:12px;border-top:1px solid #eee;">
+      最后投票: ${new Date(latestVote.timestamp).toLocaleString('zh-CN')}
+    </div>
+  `;
+
+  document.getElementById('statsTitle').textContent = '📊 投票统计';
+  document.getElementById('statsSubtitle').textContent = `共 ${allVotes.length} 人已投票`;
+  content.innerHTML = html;
+}
+
+function closeStatsModal(e) {
+  if (e.target === document.getElementById('statsModalOverlay')) closeStatsModalDirect();
+}
+function closeStatsModalDirect() {
+  document.getElementById('statsModalOverlay').classList.remove('show');
+}
+
+// 检查是否已投过票
+function checkAlreadyVoted() {
+  const voted = localStorage.getItem('zhVoted');
+  if (voted) {
+    showToast('您已完成投票，感谢参与！');
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').textContent = '已投票';
+    // 禁用分公司选择
+    document.querySelectorAll('.branch-item').forEach(item => {
+      item.style.pointerEvents = 'none';
+      item.style.opacity = '0.6';
+    });
+  }
+}
+
+// 修改closeModalDirect以标记已投票
+const originalCloseModalDirect = closeModalDirect;
+function closeModalDirect() {
+  localStorage.setItem('zhVoted', 'true');
+  originalCloseModalDirect();
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '已投票 ✓';
+}
+
+renderAll();
+checkAlreadyVoted();
+</script>
+</body>
+</html>
